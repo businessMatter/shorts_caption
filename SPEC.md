@@ -84,7 +84,7 @@ JS port of `shorts_captions.py` — identical logic, identical output. Functions
 1. UTF-8 BOM prefix (U+FEFF)
 2. CRLF line endings
 3. No trailing blank line after last entry
-4. Premiere compensation: estimate appends a 40ms guard entry; resync emits only real subtitles and extends the final entry by 40ms
+4. Premiere compatibility: estimate appends a 40ms guard entry; resync strips legacy guard entries and preserves all real subtitle timecodes unchanged
 
 ---
 

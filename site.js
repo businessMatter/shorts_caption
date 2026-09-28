@@ -144,12 +144,7 @@
     for (var i = 0; i < srtEntries.length; i++) {
       var e = srtEntries[i];
       var body = blocks[i].join("\n");
-      var end = e.end;
-      // Premiere Pro 22.6.4 shortens the final SRT cue by one frame at 25 fps.
-      if (i === srtEntries.length - 1) {
-        end = msToTc(tcToMs(end) + 40);
-      }
-      parts.push((i + 1) + "\n" + e.start + " --> " + end + "\n" + body);
+      parts.push((i + 1) + "\n" + e.start + " --> " + e.end + "\n" + body);
     }
     return parts.join("\n\n") + "\n";
   }
