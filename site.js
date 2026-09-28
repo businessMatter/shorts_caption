@@ -112,6 +112,26 @@
   function resync(blocks, srtEntries) {
     if (!blocks.length) throw new Error("No text blocks found in uploaded text file");
     if (!srtEntries.length) throw new Error("No valid entries found in uploaded SRT file");
+
+    // Strip 1-frame (40 ms) guard entries from either end. These are
+    // sacrificial subtitles added by estimateTiming / a previous resync
+    // (appended at the end) or by Premiere's own SRT export (sometimes
+    // prepended at the start). Removing them lets users feed tool-generated
+    // SRTs back into Resync without a block-count mismatch.
+    // A real subtitle is never exactly 40 ms (one frame at 25 fps).
+    if (srtEntries.length >= 2) {
+      var first = srtEntries[0];
+      if (tcToMs(first.end) - tcToMs(first.start) === 40) {
+        srtEntries = srtEntries.slice(1);
+      }
+    }
+    if (srtEntries.length >= 2) {
+      var last = srtEntries[srtEntries.length - 1];
+      if (tcToMs(last.end) - tcToMs(last.start) === 40) {
+        srtEntries = srtEntries.slice(0, -1);
+      }
+    }
+
     if (blocks.length !== srtEntries.length) {
       throw new Error(
         "Block count mismatch: .txt has " + blocks.length + " block(s), " +
@@ -125,7 +145,7 @@
     for (var i = 0; i < srtEntries.length; i++) {
       var e = srtEntries[i];
       var body = blocks[i].join("\n");
-      parts.push(e.idx + "\n" + e.start + " --> " + e.end + "\n" + body);
+      parts.push((i + 1) + "\n" + e.start + " --> " + e.end + "\n" + body);
       lastEndTc = e.end;
     }
     appendGuardEntry(parts, lastEndTc);
