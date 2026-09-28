@@ -77,14 +77,14 @@ JS port of `shorts_captions.py` — identical logic, identical output. Functions
 | `formatForPremiere(srtText)` | Add UTF-8 BOM + CRLF line endings |
 | `decodeFile(arrayBuffer)` | Decode uploaded bytes (UTF-8-sig → UTF-8 → GB18030 fallback) |
 | `tcToMs(tc)` / `msToTc(ms)` | Timecode ↔ milliseconds conversion |
-| `appendGuardEntry(parts, lastEndTc)` | Premiere guard entry (40ms invisible subtitle) |
+| `appendGuardEntry(parts, lastEndTc)` / `prependGuardEntry(parts)` | Premiere guard entry (40ms invisible subtitle) |
 
 ### SRT output rules (Premiere compatibility)
 
 1. UTF-8 BOM prefix (U+FEFF)
 2. CRLF line endings
 3. No trailing blank line after last entry
-4. Guard entry: 1-frame (40ms) invisible subtitle at the end — workaround for Premiere Pro 22.x session-level import bug
+4. Guard entry: 1-frame (40ms) invisible subtitle — estimate appends it; resync prepends it so no extra block appears after the final real subtitle
 
 ---
 

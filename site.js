@@ -78,6 +78,14 @@
     );
   }
 
+  function prependGuardEntry(parts) {
+    parts.unshift(
+      "1\n" +
+      "00:00:00,000 --> 00:00:00,040\n" +
+      " "
+    );
+  }
+
   function formatForPremiere(srtText) {
     var crlf = srtText.replace(/\n/g, "\r\n");
     var bom = "﻿";
@@ -114,10 +122,10 @@
     if (!srtEntries.length) throw new Error("No valid entries found in uploaded SRT file");
 
     // Strip 1-frame (40 ms) guard entries from either end. These are
-    // sacrificial subtitles added by estimateTiming / a previous resync
-    // (appended at the end) or by Premiere's own SRT export (sometimes
-    // prepended at the start). Removing them lets users feed tool-generated
-    // SRTs back into Resync without a block-count mismatch.
+    // sacrificial subtitles added by estimateTiming (at the end) or a
+    // previous resync / Premiere export (at the start). Removing them lets
+    // users feed tool-generated SRTs back into Resync without a block-count
+    // mismatch.
     // A real subtitle is never exactly 40 ms (one frame at 25 fps).
     if (srtEntries.length >= 2) {
       var first = srtEntries[0];
@@ -141,14 +149,12 @@
     }
 
     var parts = [];
-    var lastEndTc = "";
     for (var i = 0; i < srtEntries.length; i++) {
       var e = srtEntries[i];
       var body = blocks[i].join("\n");
-      parts.push((i + 1) + "\n" + e.start + " --> " + e.end + "\n" + body);
-      lastEndTc = e.end;
+      parts.push((i + 2) + "\n" + e.start + " --> " + e.end + "\n" + body);
     }
-    appendGuardEntry(parts, lastEndTc);
+    prependGuardEntry(parts);
     return parts.join("\n\n") + "\n";
   }
 
