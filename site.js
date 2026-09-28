@@ -78,14 +78,6 @@
     );
   }
 
-  function prependGuardEntry(parts) {
-    parts.unshift(
-      "1\n" +
-      "00:00:00,000 --> 00:00:00,040\n" +
-      " "
-    );
-  }
-
   function formatForPremiere(srtText) {
     var crlf = srtText.replace(/\n/g, "\r\n");
     var bom = "﻿";
@@ -152,9 +144,13 @@
     for (var i = 0; i < srtEntries.length; i++) {
       var e = srtEntries[i];
       var body = blocks[i].join("\n");
-      parts.push((i + 2) + "\n" + e.start + " --> " + e.end + "\n" + body);
+      var end = e.end;
+      // Premiere Pro 22.6.4 shortens the final SRT cue by one frame at 25 fps.
+      if (i === srtEntries.length - 1) {
+        end = msToTc(tcToMs(end) + 40);
+      }
+      parts.push((i + 1) + "\n" + e.start + " --> " + end + "\n" + body);
     }
-    prependGuardEntry(parts);
     return parts.join("\n\n") + "\n";
   }
 
