@@ -10,7 +10,7 @@ Live at: https://businessmatter.github.io/shorts_caption/
 
 ### 1. Estimate Timing
 
-Upload a `.txt` caption script (blank lines separate blocks). Each block becomes one SRT subtitle entry with duration estimated from character count.
+Upload a `.txt` or `.docx` caption script (blank lines separate blocks). Each block becomes one SRT subtitle entry with duration estimated from character count.
 
 **Parameters:**
 
@@ -25,7 +25,7 @@ Upload a `.txt` caption script (blank lines separate blocks). Each block becomes
 
 ### 2. Resync
 
-Upload a `.txt` (new text) + `.srt` (hand-timed reference). Maps new text blocks onto the existing SRT's timecodes entry-by-entry. Block count must match or shows error.
+Upload a `.txt` or `.docx` (new text) + `.srt` (hand-timed reference). Maps new text blocks onto the existing SRT's timecodes entry-by-entry. Block count must match or shows error.
 
 **Output:** browser-downloaded `{stem} synced.srt`.
 
@@ -60,7 +60,7 @@ shorts_caption/
     └── OFL-LICENSES.txt
 ```
 
-13 files total. No build step, no bundler, no dependencies.
+13 files total. No build step, no bundler, one vendored browser dependency (JSZip 3.10.1).
 
 ---
 
@@ -186,3 +186,13 @@ Differences:
 The additional button selects `pr2022` mode for the user-validated Windows Premiere 22.6.4 Build 2 / 25fps workaround. It appends one blank space caption lasting 40ms, starting at the final real caption end. All real timecodes remain unchanged. Premiere may display this placeholder at the beginning. Normal Resync and Generate add no guard.
 
 Both modes remove legacy empty 40ms boundary guards before matching text counts; real one-frame captions are retained. Repeated PR2022 resync does not accumulate guards or extend real caption timing. PR2022 downloads use ` synced PR2022.srt` and history shows `PR2022 resync`.
+
+## Word scripts and heading examples (v0.3.0)
+
+Both script uploads accept TXT and DOCX; timing references remain SRT. DOCX is read locally with vendored JSZip 3.10.1 (license in vendor/). Only word/document.xml is decompressed, with a 4 MB decompressed XML limit, a 10 MB input limit and a 2,000 ZIP entry limit. No external document resources are loaded, and text is never interpreted as HTML. Unsupported or malformed content produces an inline error.
+
+Each Word paragraph becomes a line; empty paragraphs separate caption blocks. Text-wrapping breaks are preserved; pagination breaks and formatting spacing do not create caption blocks. Tables, drawings, text boxes, tracked changes, fields, numbered lists and other unsupported structures are rejected rather than silently discarded. Headers/footers are not caption input. Old DOC and encrypted documents are unsupported.
+
+Estimate Timing and SRT Resync headings show the supplied script and remap images on hover or keyboard focus, positioned within the viewport. Existing SRT processing and PR2022 guard behavior are unchanged.
+
+Validation: `node tests/srt-engine.cjs`; browser tests require Playwright and run with `node tests/docx-browser.cjs [optional 12-block sample.docx]`. Set CHROME_PATH to an installed test browser if needed. The user-supplied sample remains outside the repository.

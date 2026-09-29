@@ -12,7 +12,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=0.3.0">
 </head>
 <body>
   <div class="shell">
@@ -32,7 +32,7 @@
         </div>
         <div class="branding">
           <div class="branding-title">Shorts Captions</div>
-          <div class="branding-version">v0.2.2 &middot; static</div>
+          <div class="branding-version">v0.3.0 &middot; static</div>
         </div>
       </div>
     </header>
@@ -52,15 +52,21 @@
       <!-- Estimate Timing -->
       <form id="estimate-form">
         <div class="section">
-          <div class="field-label">Estimate Timing</div>
-          <p class="section-desc">Upload a caption script. Each text block becomes one subtitle with estimated timing. No placeholder captions are added.</p>
+          <div class="field-label example-heading">
+            <span class="tooltip-anchor example-anchor" tabindex="0" aria-describedby="estimate-example">Estimate Timing
+              <span class="tooltip script-example" role="tooltip" id="estimate-example">
+                <img src="images/script_screenshot.png" alt="Script example: blank lines separate caption blocks; lines within each block stay together.">
+              </span>
+            </span>
+          </div>
+          <p class="section-desc">Upload a caption script. Each text block becomes one subtitle with estimated timing. Text blocks are separated by blank lines.</p>
 
           <label class="upload-zone tooltip-anchor" data-role="estimate-txt">
-            <span class="tooltip">Plain text caption script. Blank lines separate caption blocks. Each block becomes one subtitle entry.</span>
-            <input type="file" name="txt" accept=".txt" aria-label="Upload script file (.txt)">
+            <span class="tooltip">Text or Word caption script. Blank lines separate caption blocks. Each block becomes one subtitle entry.</span>
+            <input type="file" name="txt" accept=".txt,.docx" aria-label="Upload script file (.txt or .docx)">
             <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M12 19V5M12 5l-5 5M12 5l5 5"/></svg></div>
             <div class="upload-name">Script</div>
-            <div class="upload-hint">.txt &mdash; required</div>
+            <div class="upload-hint">.txt / .docx &mdash; required</div>
             <div class="upload-filename"></div>
             <div class="upload-warning"></div>
           </label>
@@ -89,16 +95,22 @@
       <!-- SRT Resync -->
       <form id="resync-form">
         <div class="section">
-          <div class="field-label">SRT Resync</div>
-          <p class="section-desc">Map new text onto an existing SRT's timecodes without changing timing. Text block counts must match; legacy blank 40ms placeholders at either end are ignored.</p>
+          <div class="field-label example-heading">
+            <span class="tooltip-anchor example-anchor" tabindex="0" aria-describedby="resync-example">SRT Resync
+              <span class="tooltip script-example" role="tooltip" id="resync-example">
+                <img src="images/remap.png" alt="Resync example: original English captions and Chinese captions share identical start and end timecodes.">
+              </span>
+            </span>
+          </div>
+          <p class="section-desc">Map new text onto an existing SRT's timecodes without changing timing. Text block counts must match.</p>
 
           <div class="upload-grid">
             <label class="upload-zone tooltip-anchor" data-role="resync-txt">
               <span class="tooltip">The new caption text to apply. Must have the same number of text blocks as the SRT has entries.</span>
-              <input type="file" name="txt" accept=".txt" aria-label="Upload text file (.txt)">
+              <input type="file" name="txt" accept=".txt,.docx" aria-label="Upload text file (.txt or .docx)">
               <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M12 19V5M12 5l-5 5M12 5l5 5"/></svg></div>
               <div class="upload-name">Text</div>
-              <div class="upload-hint">.txt &mdash; new caption text</div>
+              <div class="upload-hint">.txt / .docx &mdash; new caption text</div>
               <div class="upload-filename"></div>
               <div class="upload-warning"></div>
             </label>
@@ -139,6 +151,8 @@
 
     <footer class="footer"><div class="footer-line"></div></footer>
   </div>
-  <script src="site.js?v=0.2.1"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="docx-reader.js?v=0.3.0"></script>
+  <script src="site.js?v=0.3.0"></script>
 </body>
 </html>

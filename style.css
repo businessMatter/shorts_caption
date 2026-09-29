@@ -544,3 +544,12 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Script examples remain hidden until the heading is hovered or focused. */
+.example-anchor { display: inline-block; cursor: help; }
+.example-anchor:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.tooltip-anchor:focus-within .tooltip { visibility: visible; opacity: 1; }
+.example-anchor .script-example { position: fixed; left: 16px; top: 16px; bottom: auto; transform: none; width: 340px; max-width: calc(100vw - 32px); padding: 6px; background: #fff; border: 1px solid var(--border-strong); }
+.example-anchor #resync-example { width: 680px; }
+.example-anchor .script-example::after { display: none; }
+.script-example img { display: block; width: 100%; height: auto; max-height: calc(100vh - 48px); object-fit: contain; }

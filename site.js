@@ -423,7 +423,7 @@
     var warnEl = zone.querySelector(".upload-warning");
     warnEl.textContent = "";
 
-    if (accept && extOf(file.name) !== accept) {
+    if (accept && accept.split(",").map(function (ext) { return ext.trim(); }).indexOf(extOf(file.name)) === -1) {
       nameEl.textContent = "";
       warnEl.textContent = "Wrong file type - expected " + accept + ".";
       input.value = "";
@@ -509,6 +509,15 @@
     });
   }
 
+  function readScript(file) {
+    if (extOf(file.name) === ".docx" && file.size > 10 * 1024 * 1024) {
+      return Promise.reject(new Error("Word files must be 10 MB or smaller."));
+    }
+    return readFileAs(file).then(function (buffer) {
+      return extOf(file.name) === ".docx" ? window.readDocxText(buffer) : decodeFile(buffer);
+    });
+  }
+
   function stemOf(filename) {
     return filename.replace(/\.[^.]+$/, "");
   }
@@ -525,8 +534,7 @@
       var startAt = parseFloat(ef.querySelector('input[name="start_at"]').value);
       if (isNaN(startAt)) startAt = 3.0;
 
-      readFileAs(txtInput.files[0]).then(function (buf) {
-        var text = decodeFile(buf);
+      readScript(txtInput.files[0]).then(function (text) {
         var blocks = parseBlocks(text);
         var srtStr = estimateTiming(blocks, cps, startAt);
         var stem = stemOf(txtInput.files[0].name);
@@ -552,10 +560,10 @@
       var mode = e.submitter && e.submitter.value === "pr2022" ? "pr2022" : "normal";
 
       Promise.all([
-        readFileAs(txtInput.files[0]),
+        readScript(txtInput.files[0]),
         readFileAs(srtInput.files[0]),
       ]).then(function (bufs) {
-        var blocks = parseBlocks(decodeFile(bufs[0]));
+        var blocks = parseBlocks(bufs[0]);
         var srtEntries = parseSrt(decodeFile(bufs[1]));
         var srtStr = resync(blocks, srtEntries, mode);
         var stem = stemOf(txtInput.files[0].name);
@@ -575,10 +583,32 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════
+  function initScriptExamples() {
+    document.querySelectorAll(".example-anchor").forEach(function (anchor) {
+      var tip = anchor.querySelector(".script-example");
+      function position() {
+        var rect = anchor.getBoundingClientRect();
+        var width = tip.offsetWidth, height = tip.offsetHeight;
+        var left = Math.max(16, Math.min(rect.left, window.innerWidth - width - 16));
+        var top = rect.bottom + 8;
+        if (top + height > window.innerHeight - 16) top = rect.top - height - 8;
+        top = Math.max(16, Math.min(top, window.innerHeight - height - 16));
+        tip.style.left = left + "px";
+        tip.style.top = top + "px";
+      }
+      anchor.addEventListener("mouseenter", position);
+      anchor.addEventListener("focus", position);
+      tip.querySelector("img").addEventListener("load", position);
+      window.addEventListener("resize", position);
+      window.addEventListener("scroll", position, { passive: true });
+    });
+  }
+
   // Init
   // ══════════════════════════════════════════════════════════════════════
 
   document.addEventListener("DOMContentLoaded", function () {
+    initScriptExamples();
     initThemeToggle();
     initDropzones();
     validateForms();
