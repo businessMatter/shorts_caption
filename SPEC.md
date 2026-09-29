@@ -73,7 +73,7 @@ Originally ported from `shorts_captions.py`; the static version now removes gene
 | `parseBlocks(text)` | Split text by blank lines into blocks (list of line arrays) |
 | `parseSrt(text)` | Extract `{idx, start, end}` entries from SRT string |
 | `estimateTiming(blocks, cps, startAt, minDur, maxDur)` | Generate SRT string with estimated timecodes |
-| `resync(blocks, srtEntries)` | Map text blocks onto existing SRT timecodes |
+| `resync(blocks, srtEntries, mode)` | Map text blocks onto existing SRT timecodes |
 | `formatForPremiere(srtText)` | Add UTF-8 BOM + CRLF line endings |
 | `decodeFile(arrayBuffer)` | Decode uploaded bytes (UTF-8-sig → UTF-8 → GB18030 fallback) |
 | `tcToMs(tc)` / `msToTc(ms)` | Timecode ↔ milliseconds conversion |
@@ -180,3 +180,9 @@ Differences:
 | Config | `config/webapp.yaml` | None needed |
 | Dependencies | flask, waitress, pyyaml | None |
 | Branding label | "v0.1.0 · local" | "v0.1.0 · static" |
+
+## PR2022 Resync (v0.2.2)
+
+The additional button selects `pr2022` mode for the user-validated Windows Premiere 22.6.4 Build 2 / 25fps workaround. It appends one blank space caption lasting 40ms, starting at the final real caption end. All real timecodes remain unchanged. Premiere may display this placeholder at the beginning. Normal Resync and Generate add no guard.
+
+Both modes remove legacy empty 40ms boundary guards before matching text counts; real one-frame captions are retained. Repeated PR2022 resync does not accumulate guards or extend real caption timing. PR2022 downloads use ` synced PR2022.srt` and history shows `PR2022 resync`.

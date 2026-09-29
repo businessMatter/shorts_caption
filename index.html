@@ -32,7 +32,7 @@
         </div>
         <div class="branding">
           <div class="branding-title">Shorts Captions</div>
-          <div class="branding-version">v0.2.1 &middot; static</div>
+          <div class="branding-version">v0.2.2 &middot; static</div>
         </div>
       </div>
     </header>
@@ -116,7 +116,11 @@
         </div>
 
         <div class="section">
-          <button class="generate-btn" type="submit" disabled>Resync</button>
+          <div class="btn-row">
+            <button class="generate-btn" type="submit" name="mode" value="normal" disabled>Resync</button>
+            <button class="generate-btn" type="submit" name="mode" value="pr2022" aria-describedby="pr2022-help" disabled>PR2022 Resync</button>
+          </div>
+          <p class="section-desc" id="pr2022-help">For Windows Premiere 2022 at 25fps: adds a 40ms blank guard after the final caption, keeping all caption timecodes unchanged. Premiere may show the blank placeholder at the start.</p>
         </div>
       </form>
     </div>

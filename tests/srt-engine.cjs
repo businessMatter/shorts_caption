@@ -34,3 +34,16 @@ const formatted = e.formatForPremiere(e.resync(blocks, entries));
 assert.ok(formatted.startsWith('\uFEFF'));
 assert.ok(!/(?<!\r)\n/.test(formatted));
 console.log('PASS: zero-start generation, unchanged reference timing, real 40ms caption preservation, legacy guards, input immutability, errors, BOM/CRLF.');
+
+const pr = e.resync(blocks, entries, 'pr2022');
+const prRows = e.parseSrt(pr);
+assert.equal(prRows.length, 3);
+assert.equal(times(prRows.slice(0, 2)), times(entries));
+assert.equal(prRows[2].start, '00:00:59,960');
+assert.equal(prRows[2].end, '00:01:00,000');
+assert.equal(prRows[2].text.trim(), '');
+assert.equal(e.resync(blocks, prRows, 'pr2022'), pr);
+assert.equal(times(e.parseSrt(e.resync(blocks, prRows))), times(entries));
+assert.equal(JSON.stringify(entries), before);
+assert.throws(() => e.resync(blocks, entries, 'other'), /Unknown resync mode/);
+console.log('PASS: PR2022 guard, rollover, unchanged real timecodes, repeated resync, return to normal mode.');

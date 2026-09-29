@@ -95,7 +95,9 @@
     return parts.join("\n\n") + "\n";
   }
 
-  function resync(blocks, srtEntries) {
+  function resync(blocks, srtEntries, mode) {
+    mode = mode || "normal";
+    if (mode !== "normal" && mode !== "pr2022") throw new Error("Unknown resync mode");
     if (!blocks.length) throw new Error("No text blocks found in uploaded text file");
     if (!srtEntries.length) throw new Error("No valid entries found in uploaded SRT file");
 
@@ -125,6 +127,12 @@
       var e = srtEntries[i];
       var body = blocks[i].join("\n");
       parts.push((i + 1) + "\n" + e.start + " --> " + e.end + "\n" + body);
+    }
+    // Match the validated Python workaround without extending real captions.
+    if (mode === "pr2022") {
+      var lastEnd = srtEntries[srtEntries.length - 1].end;
+      parts.push((parts.length + 1) + "\n" + lastEnd + " --> " +
+        msToTc(tcToMs(lastEnd) + 40) + "\n ");
     }
     return parts.join("\n\n") + "\n";
   }
@@ -541,6 +549,7 @@
       clearError();
       var txtInput = rf.querySelector('input[name="txt"]');
       var srtInput = rf.querySelector('input[name="srt"]');
+      var mode = e.submitter && e.submitter.value === "pr2022" ? "pr2022" : "normal";
 
       Promise.all([
         readFileAs(txtInput.files[0]),
@@ -548,11 +557,11 @@
       ]).then(function (bufs) {
         var blocks = parseBlocks(decodeFile(bufs[0]));
         var srtEntries = parseSrt(decodeFile(bufs[1]));
-        var srtStr = resync(blocks, srtEntries);
+        var srtStr = resync(blocks, srtEntries, mode);
         var stem = stemOf(txtInput.files[0].name);
-        var filename = stem + " synced.srt";
+        var filename = stem + (mode === "pr2022" ? " synced PR2022.srt" : " synced.srt");
         downloadSrt(filename, srtStr);
-        addHistoryEntry(stem, "resync", filename, srtStr);
+        addHistoryEntry(stem, mode === "pr2022" ? "PR2022 resync" : "resync", filename, srtStr);
         showToast(
           'SRT downloaded<span class="toast-sep">&middot;</span>' +
           '<a data-goto-history>view in History</a>'
