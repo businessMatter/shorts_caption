@@ -39,7 +39,7 @@
       if (isNaN(idx)) continue;
       var m = TC_RE.exec(lines[1].trim());
       if (!m) continue;
-      entries.push({ idx: idx, start: m[1], end: m[2] });
+      entries.push({ idx: idx, start: m[1], end: m[2], text: lines.slice(2).join("\n") });
     }
     return entries;
   }
@@ -67,17 +67,6 @@
   function pad2(n) { return n < 10 ? "0" + n : "" + n; }
   function pad3(n) { return n < 10 ? "00" + n : n < 100 ? "0" + n : "" + n; }
 
-  function appendGuardEntry(parts, lastEndTc) {
-    var guardIdx = parts.length + 1;
-    var guardStartMs = tcToMs(lastEndTc);
-    var guardEndMs = guardStartMs + 40;
-    parts.push(
-      guardIdx + "\n" +
-      msToTc(guardStartMs) + " --> " + msToTc(guardEndMs) + "\n" +
-      " "
-    );
-  }
-
   function formatForPremiere(srtText) {
     var crlf = srtText.replace(/\n/g, "\r\n");
     var bom = "﻿";
@@ -93,7 +82,6 @@
 
     var parts = [];
     var t = startAt;
-    var lastEndTc = "";
     for (var i = 0; i < blocks.length; i++) {
       var chars = 0;
       for (var j = 0; j < blocks[i].length; j++) chars += blocks[i][j].length;
@@ -102,10 +90,8 @@
       var endTc = msToTc(Math.round((t + dur) * 1000));
       var body = blocks[i].join("\n");
       parts.push((i + 1) + "\n" + startTc + " --> " + endTc + "\n" + body);
-      lastEndTc = endTc;
       t += dur;
     }
-    appendGuardEntry(parts, lastEndTc);
     return parts.join("\n\n") + "\n";
   }
 
@@ -113,23 +99,17 @@
     if (!blocks.length) throw new Error("No text blocks found in uploaded text file");
     if (!srtEntries.length) throw new Error("No valid entries found in uploaded SRT file");
 
-    // Strip 1-frame (40 ms) guard entries from either end. These are
-    // sacrificial subtitles added by estimateTiming (at the end) or a
-    // previous resync / Premiere export (at the start). Removing them lets
-    // users feed tool-generated SRTs back into Resync without a block-count
-    // mismatch.
-    // A real subtitle is never exactly 40 ms (one frame at 25 fps).
-    if (srtEntries.length >= 2) {
-      var first = srtEntries[0];
-      if (tcToMs(first.end) - tcToMs(first.start) === 40) {
-        srtEntries = srtEntries.slice(1);
-      }
+    // Only discard legacy boundary guards when their body is empty.
+    // Real one-frame subtitles must retain their timecodes and text mapping.
+    function isLegacyGuard(entry) {
+      return typeof entry.text === "string" && !entry.text.trim() &&
+        tcToMs(entry.end) - tcToMs(entry.start) === 40;
     }
-    if (srtEntries.length >= 2) {
-      var last = srtEntries[srtEntries.length - 1];
-      if (tcToMs(last.end) - tcToMs(last.start) === 40) {
-        srtEntries = srtEntries.slice(0, -1);
-      }
+    if (srtEntries.length >= 2 && isLegacyGuard(srtEntries[0])) {
+      srtEntries = srtEntries.slice(1);
+    }
+    if (srtEntries.length >= 2 && isLegacyGuard(srtEntries[srtEntries.length - 1])) {
+      srtEntries = srtEntries.slice(0, -1);
     }
 
     if (blocks.length !== srtEntries.length) {
@@ -483,10 +463,12 @@
       eBtn.disabled = !(eTxt && eTxt.files.length);
     }
     if (rf) {
-      var rBtn = rf.querySelector(".generate-btn");
+      var rButtons = rf.querySelectorAll(".generate-btn");
       var rTxt = rf.querySelector('input[name="txt"]');
       var rSrt = rf.querySelector('input[name="srt"]');
-      rBtn.disabled = !(rTxt && rTxt.files.length && rSrt && rSrt.files.length);
+      rButtons.forEach(function (button) {
+        button.disabled = !(rTxt && rTxt.files.length && rSrt && rSrt.files.length);
+      });
     }
   }
 

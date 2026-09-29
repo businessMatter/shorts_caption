@@ -32,7 +32,7 @@
         </div>
         <div class="branding">
           <div class="branding-title">Shorts Captions</div>
-          <div class="branding-version">v0.1.0 &middot; static</div>
+          <div class="branding-version">v0.2.1 &middot; static</div>
         </div>
       </div>
     </header>
@@ -53,7 +53,7 @@
       <form id="estimate-form">
         <div class="section">
           <div class="field-label">Estimate Timing</div>
-          <p class="section-desc">Upload a caption script. Each text block becomes one subtitle with estimated timing.</p>
+          <p class="section-desc">Upload a caption script. Each text block becomes one subtitle with estimated timing. No placeholder captions are added.</p>
 
           <label class="upload-zone tooltip-anchor" data-role="estimate-txt">
             <span class="tooltip">Plain text caption script. Blank lines separate caption blocks. Each block becomes one subtitle entry.</span>
@@ -90,7 +90,7 @@
       <form id="resync-form">
         <div class="section">
           <div class="field-label">SRT Resync</div>
-          <p class="section-desc">Map new text onto an existing SRT's timecodes. Block count must match.</p>
+          <p class="section-desc">Map new text onto an existing SRT's timecodes without changing timing. Text block counts must match; legacy blank 40ms placeholders at either end are ignored.</p>
 
           <div class="upload-grid">
             <label class="upload-zone tooltip-anchor" data-role="resync-txt">
@@ -133,6 +133,6 @@
 
     <footer class="footer"><div class="footer-line"></div></footer>
   </div>
-  <script src="site.js"></script>
+  <script src="site.js?v=0.2.1"></script>
 </body>
 </html>

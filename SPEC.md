@@ -66,7 +66,7 @@ shorts_caption/
 
 ## SRT Engine (JavaScript)
 
-JS port of `shorts_captions.py` — identical logic, identical output. Functions:
+Originally ported from `shorts_captions.py`; the static version now removes generated placeholders and safely handles legacy guards. Functions:
 
 | Function | Description |
 |----------|-------------|
@@ -77,14 +77,14 @@ JS port of `shorts_captions.py` — identical logic, identical output. Functions
 | `formatForPremiere(srtText)` | Add UTF-8 BOM + CRLF line endings |
 | `decodeFile(arrayBuffer)` | Decode uploaded bytes (UTF-8-sig → UTF-8 → GB18030 fallback) |
 | `tcToMs(tc)` / `msToTc(ms)` | Timecode ↔ milliseconds conversion |
-| `appendGuardEntry(parts, lastEndTc)` | Premiere guard entry (40ms invisible subtitle) |
 
 ### SRT output rules (Premiere compatibility)
 
 1. UTF-8 BOM prefix (U+FEFF)
 2. CRLF line endings
 3. No trailing blank line after last entry
-4. Premiere compatibility: estimate appends a 40ms guard entry; resync strips legacy guard entries and preserves all real subtitle timecodes unchanged
+4. Generate adds no placeholder entries, including when starting at zero.
+5. Resync preserves every real caption start/end time. It strips only blank 40ms boundary entries from legacy files; real 40ms captions are preserved.
 
 ---
 
@@ -167,7 +167,7 @@ Hosted on GitHub Pages from the `gh-pages` branch. No build step — GitHub serv
 
 The `master` branch holds a Flask + Python backend version of the same app (for local use with `python run_webapp.py`). Both branches share:
 
-- Identical SRT processing logic (Python ↔ JS port)
+- Shared original SRT processing design (the static version now differs in guard handling)
 - Identical design system (CSS tokens, fonts, component patterns)
 - Identical UI layout and behavior
 
